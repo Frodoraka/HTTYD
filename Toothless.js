@@ -6,7 +6,7 @@ const dragons = [
     {name: "Night Fury", xp: 0, level: 1, power: 75, maxHP: 100, health: 100, value: 1000, id: 4, owned: false}, 
 ];
 let myDragon = dragons[0];
-let gold = 10000;
+let gold = 20;
 let monster;
 let ki = 0;
 
@@ -280,5 +280,4 @@ function equipNatterhead() {
     levelText.innerText = myDragon.level
     healthText.innerText = myDragon.health + "/" + myDragon.maxHP
 }
-
 })
