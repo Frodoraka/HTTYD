@@ -1,12 +1,12 @@
 document.addEventListener("DOMContentLoaded", function() {
 const dragons = [
     {name: "Terrible Terror", xp: 0, level: 1, power: 5, maxHP: 20, health: 20, id: 1, owned: true},
-    {name: "Gronckle", xp: 0, level: 1, power: 10, maxHP: 100, health: 100, value: 100, id: 2, owned: false,},
-    {name: "Natterhead", xp: 0, level: 1, power: 35, maxHP: 75, health: 75, value: 250, id: 3, owned: false,},
-    {name: "Night Fury", xp: 0, level: 1, power: 75, maxHP: 100, health: 100, value: 1000, id: 4, owned: false,},
+    {name: "Gronckle", xp: 0, level: 1, power: 10, maxHP: 100, health: 100, value: 100, id: 2, owned: false},
+    {name: "Natterhead", xp: 0, level: 1, power: 35, maxHP: 75, health: 75, value: 250, id: 3, owned: false},
+    {name: "Night Fury", xp: 0, level: 1, power: 75, maxHP: 100, health: 100, value: 1000, id: 4, owned: false}, 
 ];
 let myDragon = dragons[0];
-let gold = 20;
+let gold = 10000;
 let monster;
 let ki = 0;
 
@@ -94,10 +94,14 @@ function update(locations) {
     button2.onclick = locations["button functions"][1];
     button3.onclick = locations["button functions"][2];
     info.innerHTML = locations.info;
+    goldText.innerText = gold
+    xpText.innerText = myDragon.xp
+    levelText.innerText = myDragon.level
+    healthText.innerText = myDragon.health + "/" + myDragon.maxHP
 };
 
 function restart() {
-    update(locations[0])
+    location.reload();
 }
 
 function goHome() {
@@ -126,10 +130,6 @@ function buyGronckle() {
         gold -= dragons[1].value
         myDragon = dragons[1]
         info.innerText = "You have purchased the Gronckle, this is a heavily fortified dragon with low power."
-        xpText.innerText = dragons[1].xp
-        goldText.innerText = gold
-        levelText.innerText = dragons[1].level
-        healthText.innerText = dragons[1].health
     } else {
         info.innerText = "You're broke, go make some money then come back here."
     }
@@ -141,10 +141,6 @@ function buyNatterhead() {
         gold -= dragons[2].value
         myDragon = dragons[2]
         info.innerText = "You have purchased the Natterhead, this dragon can send viscous spine projectiles at its enemies."
-        xpText.innerText = myDragon.xp
-        goldText.innerText = gold
-        levelText.innerText = myDragon.level
-        healthText.innerText = myDragon.health
     } else {
         info.innerText = "You're broke, go make some money then come back here."
     }
@@ -159,7 +155,7 @@ function healDragon() {
             healthText.innerText = myDragon.health
             if (myDragon.health >= myDragon.maxHP) {
             myDragon.health = myDragon.maxHP
-            healthText.innerText = myDragon.health
+            healthText.innerText = myDragon.health + "/" + myDragon.maxHP
             }
         }
         else {
@@ -197,7 +193,7 @@ function attack() {
     info.innerText += myDragon.name + " strikes back."
     myDragon.health -= monster.power
     monster.health -= myDragon.power + ki
-    healthText.innerText = myDragon.health
+    healthText.innerText = myDragon.health + "/" + myDragon.maxHP
     monsterHealth.innerText = monster.health
     ki = 0
     if (myDragon.health <= 0) {
@@ -206,12 +202,9 @@ function attack() {
         if (monster.id == 3) {
             update(locations[8])
         } else {
-            update(locations[6])
             myDragon.xp += monster.level * 10
-            console.log(gold)
             gold += monster.level * 5
-            xpText.innerText = myDragon.xp
-            goldText.innerText  = gold
+            update(locations[6])
             if (myDragon.xp >= 100) {
                 levelup()
             }
@@ -222,7 +215,6 @@ function attack() {
 function fightDagur() {
     update(locations[5])
     monster = monsters[3]
-    monster.health = monster.maxHP
     monsterName.innerText = monster.name
     monsterHealth.innerText = monster.health
     monsterStats.style.display = "block"
@@ -233,7 +225,7 @@ function charge() {
     info.innerText = "The " + monster.name + " attacks. \n"
     info.innerText += "You charge your next attack to be even more lethal."
     myDragon.health -= monster.power
-    healthText.innerText = myDragon.health
+    healthText.innerText = myDragon.health + "/" + myDragon.maxHP
     monsterHealth.innerText = monster.health
     ki = Math.floor(myDragon.power * getRandom(0, 2))
 };
@@ -244,9 +236,9 @@ function levelup() {
     myDragon.power += myDragon.id * 5
     myDragon.health += 15
     myDragon.maxHP += 15
-    healthText.innerText = myDragon.health
     xpText.innerText = myDragon.xp
     levelText.innerText = myDragon.level
+    healthText.innerText = myDragon.health + "/" + myDragon.maxHP
     info.innerText = "Congratulations your dragon has leveled up."
 };
 
@@ -274,7 +266,7 @@ function equipGronckle() {
     }
     xpText.innerText = myDragon.xp
     levelText.innerText = myDragon.level
-    healthText.innerText = myDragon.health
+    healthText.innerText = myDragon.health + "/" + myDragon.maxHP
 }
 
 function equipNatterhead() {
@@ -286,7 +278,7 @@ function equipNatterhead() {
         }
     xpText.innerText = myDragon.xp
     levelText.innerText = myDragon.level
-    healthText.innerText = myDragon.health
+    healthText.innerText = myDragon.health + "/" + myDragon.maxHP
 }
 
 })
