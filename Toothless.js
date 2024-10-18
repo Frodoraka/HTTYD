@@ -10,7 +10,7 @@ let myDragon = dragons[0];
 let gold = 20;
 let monster;
 let ki = 0;
-let mhPrice = myDragon.maxHP * 10
+let mhPrice = (myDragon.maxHP - myDragon.health) * 10
 
 const button1 = document.querySelector("#button1");
 const button2 = document.querySelector("#button2");
@@ -115,6 +115,8 @@ function goHome() {
 };
 
 function goShop() {
+    mhPrice = (myDragon.maxHP - myDragon.health) * 10
+    locations[1]["button text"][2] = "Heal to full (" + mhPrice + " gold)"
     update(locations[1])
     button4.style.display = "inline-block"
 };
@@ -161,7 +163,6 @@ function healDragon(size) {
             myDragon.health += 10
             gold -= 10
             goldText.innerText = gold
-            console.log()
             if (myDragon.health >= myDragon.maxHP) {
             myDragon.health = myDragon.maxHP
             }
@@ -200,7 +201,6 @@ function getRandom(min, max) {
 };
 
 function attack() {
-    console.log(ki)
     info.innerText = "The " + monster.name + " attacks."
     info.innerText += myDragon.name + " strikes back."
     myDragon.health -= monster.power
@@ -241,8 +241,6 @@ function charge() {
 
 function checkForLevelup() {
     let nextLevelXP = experienceForLevel(myDragon.level + 1)
-    console.log(nextLevelXP)
-    console.log(myDragon.xp)
     while (myDragon.xp >= nextLevelXP) {
         myDragon.level++
         myDragon.power += myDragon.id * 5
