@@ -222,6 +222,7 @@ function attack() {
 function fightDagur() {
     update(locations[5])
     monster = monsters[3]
+    monster.health = monster.maxHP
     monsterName.innerText = monster.name
     monsterHealth.innerText = monster.health
     monsterStats.style.display = "block"
