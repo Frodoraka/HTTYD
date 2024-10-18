@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function() {
 const dragons = [
     {name: "Terrible Terror", xp: 0, level: 1, power: 5, maxHP: 20, health: 20, id: 1, owned: true},
-    {name: "Gronckle", xp: 0, level: 1, power: 10, maxHP: 100, health: 100, value: 100, id: 2, owned: false},
-    {name: "Natterhead", xp: 0, level: 1, power: 35, maxHP: 75, health: 75, value: 250, id: 3, owned: false},
+    {name: "Gronckle", xp: 0, level: 1, power: 10, maxHP: 100, health: 100, value: 200, id: 2, owned: false},
+    {name: "Natterhead", xp: 0, level: 1, power: 35, maxHP: 75, health: 75, value: 500, id: 3, owned: false},
     {name: "Night Fury", xp: 0, level: 1, power: 75, maxHP: 100, health: 100, value: 1000, id: 4, owned: false}, 
 ];
 
