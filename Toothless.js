@@ -7,7 +7,7 @@ const dragons = [
 ];
 
 let myDragon = dragons[0];
-let gold = 20;
+let gold = 20000;
 let monster;
 let ki = 0;
 let mhPrice = (myDragon.maxHP - myDragon.health) * 10
@@ -38,12 +38,12 @@ const locations = [
     },
     {name: "shop",
     "button text": ["Buy new dragon", "Heal your dragon (10 gold)", "Heal to full (" + mhPrice + " gold)", "Return home"],
-    "button functions": [buyDragon, () => healDragon(1), () => healDragon(2), goHome],
+    "button functions": [dragonShop, () => healDragon(1), () => healDragon(2), goHome],
     info: "You have entered the shop, what is it you wish to purchase",
     },
     {name: "shop inventory",
-    "button text": ["Gronckle (" + dragons[1].value + "gold)", "Natterhead (" + dragons[2].value + "gold)", "Return home"],
-    "button functions": [buyGronckle, buyNatterhead, goHome],
+    "button text": ["Gronckle (" + dragons[1].value + " gold)", "Natterhead (" + dragons[2].value + " gold)", "Night Fury (" + dragons[3].value + " gold)", "Return home"],
+    "button functions": [ () => buyDragon(1), () => buyDragon(2), () => buyDragon(3), goHome],
     info: "You have entered the shop, what is it you wish to purchase",
     },
     {name: "beserker island",
@@ -78,7 +78,7 @@ const locations = [
     },
     {name: "swap inventory",
     "button text": ["Equip Gronckle", "Equip Natterhead", "Return home"],
-    "button functions": [equipGronckle, equipNatterhead, goHome],
+    "button functions": [ () => equipDragon(1), () => equipDragon(2), goHome],
     info: "Which dragon would you like to swap too."
     }
 ];
@@ -87,7 +87,16 @@ button1.onclick = goShop;
 button2.onclick = goBerserk;
 button3.onclick = goInventory;
 
-function update(locations) {
+function updateStats() {
+    goldText.innerText = gold
+    xpText.innerText = myDragon.xp
+    levelText.innerText = myDragon.level
+    healthText.innerText = myDragon.health + "/" + myDragon.maxHP
+    checkForLevelup()
+}
+
+function updateLocation(locations) {
+    button4.style.display = "none"
     monsterStats.style.display = "none"
     button1.innerText = locations["button text"][0];
     button2.innerText = locations["button text"][1];
@@ -98,11 +107,7 @@ function update(locations) {
     button3.onclick = locations["button functions"][2];
     button4.onclick = locations["button functions"][3];
     info.innerHTML = locations.info;
-    goldText.innerText = gold
-    xpText.innerText = myDragon.xp
-    levelText.innerText = myDragon.level
-    healthText.innerText = myDragon.health + "/" + myDragon.maxHP
-    checkForLevelup()
+    updateStats()
 };
 
 function restart() {
@@ -110,52 +115,45 @@ function restart() {
 }
 
 function goHome() {
-    update(locations[0])
-    button4.style.display = "none"
+    updateLocation(locations[0])
 };
 
 function goShop() {
     mhPrice = (myDragon.maxHP - myDragon.health)
     locations[1]["button text"][2] = "Heal to full (" + mhPrice + " gold)"
-    update(locations[1])
+    updateLocation(locations[1])
     button4.style.display = "inline-block"
 };
 
-function buyDragon() {
-    update(locations[2])
+function dragonShop() {
+    updateLocation(locations[2])
+    button4.style.display = "inline-block"
 };
 
 function goBerserk() {
-    update(locations[3])
+    updateLocation(locations[3])
 };
 
 function goInventory() {
-    update(locations[4])
+    updateLocation(locations[4])
 };
 
-function buyGronckle() {
-    if (gold >= dragons[1].value) {
-        dragons[1].owned = true
-        gold -= dragons[1].value
-        myDragon = dragons[1]
-        info.innerText = "You have purchased the Gronckle, this is a heavily fortified dragon with low power."
-        update(locations[0])
+function buyDragon(selected) {
+    if (dragons[selected].owned == false) {
+        if (gold >= dragons[selected].value) {
+            dragons[selected].owned = true
+            gold -= dragons[selected].value
+            myDragon = dragons[selected]
+            info.innerText = "You have purchased the Gronckle, this is a heavily fortified dragon with low power."
+            updateStats()
+        }  else {
+            info.innerText = "You're broke, go make some money then come back here."
+        }
     } else {
-        info.innerText = "You're broke, go make some money then come back here."
+        info.innerText = "owww, you already own this dragon"
     }
-};
+}
 
-function buyNatterhead() {
-    if (gold >= dragons[2].value) {
-        dragons[2].owned = true
-        gold -= dragons[2].value
-        myDragon = dragons[2]
-        info.innerText = "You have purchased the Natterhead, this dragon can send viscous spine projectiles at its enemies."
-        update(locations[0])
-    } else {
-        info.innerText = "You're broke, go make some money then come back here."
-    }
-};
 
 function healDragon(size) {
     if (myDragon.health < myDragon.maxHP) {
@@ -182,7 +180,7 @@ function healDragon(size) {
 };
 
 function goDungeon() {
-    update(locations[5])
+    updateLocation(locations[5])
     if (myDragon.power >= monsters[2].power) {
         monster = monsters[getRandom(0, 2)]
     } else if (myDragon.power >= monsters[1].power) {
@@ -210,10 +208,10 @@ function attack() {
     monsterHealth.innerText = monster.health
     ki = 0
     if (myDragon.health <= 0) {
-        update(locations[7])
+        updateLocation(locations[7])
     } else if (monster.health <= 0) {
         if (monster.id == 3) {
-            update(locations[8])
+            updateLocation(locations[8])
         } else {
             myDragon.xp += monster.maxHP * 5
             gold += monster.level * 5
@@ -223,7 +221,7 @@ function attack() {
 };
 
 function fightDagur() {
-    update(locations[5])
+    updateLocation(locations[5])
     monster = monsters[3]
     monsterName.innerText = monster.name
     monsterHealth.innerText = monster.health
@@ -235,7 +233,7 @@ function charge() {
     info.innerText = "The " + monster.name + " attacks. \n"
     info.innerText += "You charge your next attack to be even more lethal."
     myDragon.health -= monster.power
-    healthText.innerText = myDragon.health + "/" + myDragon.maxHP
+    updateStats()
     monsterHealth.innerText = monster.health
     ki = Math.floor(myDragon.power * getRandom(0, 2))
 };
@@ -246,9 +244,7 @@ function checkForLevelup() {
         myDragon.level++
         myDragon.power += myDragon.id * 5
         myDragon.maxHP += 15
-        xpText.innerText = myDragon.xp
-        levelText.innerText = myDragon.level
-        healthText.innerText = myDragon.health + "/" + myDragon.maxHP
+       updateStats()
         info.innerText = "Congratulations your dragon has leveled up."
         nextLevelXP = experienceForLevel(myDragon.level + 1)
     }
@@ -274,34 +270,17 @@ function showInventory() {
 };
 
 function swapDragon() {
-    update(locations[9])
+    updateLocation(locations[9])
 }
 
-function equipGronckle() {
-    if (dragons[1].owned === true) {
-    myDragon = dragons[1]
-    info.innerText = "You have equipped Gronckle"
+function equipDragon(selected) {
+    if (dragons[selected].owned === true) {
+    myDragon = dragons[selected]
+    info.innerText = "You have equipped " + myDragon.name
     } else {
         info.innerText = "You do not own this dragon"
     }
-    xpText.innerText = myDragon.xp
-    levelText.innerText = myDragon.level
-    healthText.innerText = myDragon.health + "/" + myDragon.maxHP
+    updateStats()
 }
-
-function equipNatterhead() {
-    if (dragons[2].owned === true) {
-        myDragon = dragons[2]
-        info.innerText = "You have equipped Natterhead"
-        } else {
-            info.innerText = "You do not own this dragon"
-        }
-    xpText.innerText = myDragon.xp
-    levelText.innerText = myDragon.level
-    healthText.innerText = myDragon.health + "/" + myDragon.maxHP
-}
-
-
-
 
 })
