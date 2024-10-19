@@ -42,7 +42,7 @@ const locations = [
     info: "You have entered the shop, what is it you wish to purchase",
     },
     {name: "shop inventory",
-    "button text": ["Gronckle (100 gold)", "Natterhead (250 gold)", "Return home"],
+    "button text": ["Gronckle (" + dragons[1].value + "gold)", "Natterhead (" + dragons[2].value + "gold)", "Return home"],
     "button functions": [buyGronckle, buyNatterhead, goHome],
     info: "You have entered the shop, what is it you wish to purchase",
     },
@@ -115,7 +115,7 @@ function goHome() {
 };
 
 function goShop() {
-    mhPrice = (myDragon.maxHP - myDragon.health) * 10
+    mhPrice = (myDragon.maxHP - myDragon.health)
     locations[1]["button text"][2] = "Heal to full (" + mhPrice + " gold)"
     update(locations[1])
     button4.style.display = "inline-block"
@@ -169,6 +169,7 @@ function healDragon(size) {
         } else if (size == 2 && gold >= mhPrice) {
             myDragon.health = myDragon.maxHP
             gold -= mhPrice
+            goldText.innerText = gold
         }
         else {
             info.innerText = "You're broke, go make some money then come back here."
@@ -201,7 +202,7 @@ function getRandom(min, max) {
 };
 
 function attack() {
-    info.innerText = "The " + monster.name + " attacks."
+    info.innerText = "The " + monster.name + " attacks.\n"
     info.innerText += myDragon.name + " strikes back."
     myDragon.health -= monster.power
     monster.health -= myDragon.power + ki
