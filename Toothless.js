@@ -7,7 +7,7 @@ const dragons = [
 ];
 
 let myDragon = dragons[0];
-let gold = 20000;
+let gold = 20;
 let monster;
 let ki = 0;
 let mhPrice = (myDragon.maxHP - myDragon.health) * 10
