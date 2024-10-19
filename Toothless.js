@@ -209,13 +209,14 @@ function attack() {
     ki = 0
     if (myDragon.health <= 0) {
         updateLocation(locations[7])
-    } else if (monster.health <= 0) {
+    }
+    if (monster.health <= 0) {
         if (monster.id == 3) {
             updateLocation(locations[8])
         } else {
             myDragon.xp += monster.maxHP * 5
             gold += monster.level * 5
-            update(locations[6])
+            updateLocation(locations[6])
             }
     }
 };
