@@ -257,7 +257,7 @@ function checkForLevelup() {
     let nextLevelXP = experienceForLevel(myDragon.level + 1)
     while (myDragon.xp >= nextLevelXP) {
         myDragon.level++
-        myDragon.power += myDragon.id * 5
+        myDragon.power += (myDragon.id + 1) * 5
         myDragon.maxHP += 15
         updateStats()
         info.innerText = "Congratulations your dragon has leveled up."
