@@ -1,13 +1,13 @@
 document.addEventListener("DOMContentLoaded", function() {
 const dragons = [
-    {name: "Terrible Terror", xp: 0, level: 1, power: 5, maxHP: 20, health: 20, id: 1, owned: true},
-    {name: "Gronckle", xp: 0, level: 1, power: 10, maxHP: 100, health: 100, value: 200, id: 2, owned: false},
-    {name: "Natterhead", xp: 0, level: 1, power: 35, maxHP: 75, health: 75, value: 500, id: 3, owned: false},
-    {name: "Night Fury", xp: 0, level: 1, power: 75, maxHP: 100, health: 100, value: 1000, id: 4, owned: false}, 
+    {name: "Terrible Terror", xp: 0, level: 1, power: 5, maxHP: 20, health: 20, id: 0, owned: true},
+    {name: "Gronckle", xp: 0, level: 1, power: 10, maxHP: 100, health: 100, value: 200, id: 1, owned: false},
+    {name: "Natterhead", xp: 0, level: 1, power: 35, maxHP: 75, health: 75, value: 500, id: 2, owned: false},
+    {name: "Night Fury", xp: 0, level: 1, power: 75, maxHP: 100, health: 100, value: 1000, id: 3, owned: false}, 
 ];
 
 let myDragon = dragons[0];
-let gold = 20;
+let gold = 200;
 let monster;
 let ki = 0;
 let mhPrice = (myDragon.maxHP - myDragon.health) * 10
@@ -21,6 +21,7 @@ const xpText = document.querySelector("#xpText");
 const levelText = document.querySelector("#levelText");
 const goldText = document.querySelector("#goldText");
 const healthText = document.querySelector("#healthText");
+const nameText = document.querySelector("#nameText");
 const monsterStats = document.querySelector("#monsterStats");
 const monsterName = document.querySelector("#monsterName");
 const monsterHealth = document.querySelector("#monsterHealth");
@@ -32,28 +33,28 @@ const monsters = [
 ];
 const locations = [
     {name: "home",
-    "button text": ["Go to shop", "Travel to Berserk", "Check inventory"],
-    "button functions": [goShop, goBerserk, goInventory],
+    "button text": ["Travel to Berserk", "Shop", "Inventory"],
+    "button functions": [goBerserk, goShop, goInventory],
     info: "You return to the town centre, where would you like to travel next."
     },
     {name: "shop",
-    "button text": ["Buy new dragon", "Heal your dragon (10 gold)", "Heal to full (" + mhPrice + " gold)", "Return home"],
+    "button text": ["New dragon", "+10 Health (10 gold)", "Full heal (" + mhPrice + " gold)", "Home"],
     "button functions": [dragonShop, () => healDragon(1), () => healDragon(2), goHome],
     info: "You have entered the shop, what is it you wish to purchase",
     },
     {name: "shop inventory",
-    "button text": ["Gronckle (" + dragons[1].value + " gold)", "Natterhead (" + dragons[2].value + " gold)", "Night Fury (" + dragons[3].value + " gold)", "Return home"],
+    "button text": ["Gronckle (" + dragons[1].value + " gold)", "Natterhead (" + dragons[2].value + " gold)", "Night Fury (" + dragons[3].value + " gold)", "Home"],
     "button functions": [ () => buyDragon(1), () => buyDragon(2), () => buyDragon(3), goHome],
     info: "You have entered the shop, what is it you wish to purchase",
     },
     {name: "beserker island",
-    "button text": ["Enter the dungeon", "Challenge Dagur", "Return home"],
+    "button text": ["Enter the dungeon", "Challenge Dagur", "Home"],
     "button functions": [goDungeon, fightDagur, goHome],
     info: "You have landed on Berserker Island, are you prepared to face Dagur or must you defeat his men first."
     },
     {name: "inventory",
-    "button text": ["Check inventory", "Swap dragon", "Return home"],
-    "button functions": [showInventory, swapDragon, goHome],
+    "button text": ["Dragon Info", "Swap dragons", "Return home"],
+    "button functions": [statCheck, swapDragon, goHome],
     info: "Welcome to your inventory, here you can check for more information about your dragons and swap out the one your are actively fighting with."
     },
     {name: "battle",
@@ -77,17 +78,18 @@ const locations = [
     info: "Far you're the man aye, too easy for you g your're gonna have to wait for the exapansion packs."
     },
     {name: "swap inventory",
-    "button text": ["Equip Gronckle", "Equip Natterhead", "Return home"],
-    "button functions": [ () => equipDragon(1), () => equipDragon(2), goHome],
+    "button text": [],
+    "button functions": [],
     info: "Which dragon would you like to swap too."
     }
 ];
 
-button1.onclick = goShop;
-button2.onclick = goBerserk;
+button1.onclick = goBerserk;
+button2.onclick = goShop;
 button3.onclick = goInventory;
 
 function updateStats() {
+    nameText.innerText = myDragon.name
     goldText.innerText = gold
     xpText.innerText = myDragon.xp
     levelText.innerText = myDragon.level
@@ -96,7 +98,6 @@ function updateStats() {
 }
 
 function updateLocation(locations) {
-    button4.style.display = "none"
     monsterStats.style.display = "none"
     button1.innerText = locations["button text"][0];
     button2.innerText = locations["button text"][1];
@@ -115,12 +116,19 @@ function restart() {
 }
 
 function goHome() {
+    button2.style.display = "inline-block"
+    button3.style.display = "inline-block"
+    button4.style.display = "none"
     updateLocation(locations[0])
 };
 
 function goShop() {
     mhPrice = (myDragon.maxHP - myDragon.health)
-    locations[1]["button text"][2] = "Heal to full (" + mhPrice + " gold)"
+    if (mhPrice == 0) {
+        locations[1]["button text"][2] = "Full heal (0 Gold)"
+    } else {
+        locations[1]["button text"][2] = "Full heal (" + mhPrice + " gold)"
+    }
     updateLocation(locations[1])
     button4.style.display = "inline-block"
 };
@@ -138,13 +146,19 @@ function goInventory() {
     updateLocation(locations[4])
 };
 
+function swapDragon() {
+    button4.style.display = "inline-block"
+    checkForDragons(0)
+    updateLocation(locations[9])
+}
+
 function buyDragon(selected) {
     if (dragons[selected].owned == false) {
         if (gold >= dragons[selected].value) {
             dragons[selected].owned = true
             gold -= dragons[selected].value
             myDragon = dragons[selected]
-            info.innerText = "You have purchased the Gronckle, this is a heavily fortified dragon with low power."
+            info.innerText = `You have purchased the ${myDragon.name}.`
             updateStats()
         }  else {
             info.innerText = "You're broke, go make some money then come back here."
@@ -207,9 +221,6 @@ function attack() {
     healthText.innerText = myDragon.health + "/" + myDragon.maxHP
     monsterHealth.innerText = monster.health
     ki = 0
-    if (myDragon.health <= 0) {
-        updateLocation(locations[7])
-    }
     if (monster.health <= 0) {
         if (monster.id == 3) {
             updateLocation(locations[8])
@@ -218,6 +229,9 @@ function attack() {
             gold += monster.level * 5
             updateLocation(locations[6])
             }
+    }
+    if (myDragon.health <= 0) {
+        updateLocation(locations[7])
     }
 };
 
@@ -245,7 +259,7 @@ function checkForLevelup() {
         myDragon.level++
         myDragon.power += myDragon.id * 5
         myDragon.maxHP += 15
-       updateStats()
+        updateStats()
         info.innerText = "Congratulations your dragon has leveled up."
         nextLevelXP = experienceForLevel(myDragon.level + 1)
     }
@@ -259,21 +273,6 @@ function experienceForLevel(level) {
     return Math.floor(totalXP / 4);
 }
 
-function showInventory() {
-    info.innerText = "These are your dragons: \n"
-    dragons.forEach(dragon => {
-        if (dragon.owned) {
-            info.innerText += dragon.name + "\n";
-        } else {
-            console.log(`${dragon.name} is not owned.`);
-        }
-    });
-};
-
-function swapDragon() {
-    updateLocation(locations[9])
-}
-
 function equipDragon(selected) {
     if (dragons[selected].owned === true) {
     myDragon = dragons[selected]
@@ -283,5 +282,45 @@ function equipDragon(selected) {
     }
     updateStats()
 }
+
+function statCheck() {
+    info.innerText = `Dragon Stats:
+    Name: ${myDragon.name}
+    Power: ${myDragon.power}
+    Level: ${myDragon.level}
+    Health: ${myDragon.health}/${myDragon.maxHP}
+    XP till level up: ${experienceForLevel(myDragon.level + 1)}`
+}
+
+function checkForDragons(page) {
+    let ownedDragons = dragons.filter(dragons => dragons.owned)
+    let dragonsPerPage = 2
+    let startIndex = page * dragonsPerPage
+    let endIndex = startIndex + dragonsPerPage
+    for (let i = 0; i < dragonsPerPage; i++) {
+        if (startIndex + i < ownedDragons.length) {
+            let dragon = dragons[i + startIndex]
+            locations[9]["button text"][i] = `Equip ${dragon.name}`
+            locations[9]["button functions"][i] = () => equipDragon(dragon.id)
+        } else {
+                 button2.style.display = "none"
+            }
+    }
+
+    if (endIndex < ownedDragons.length) {
+
+        locations[9]["button text"][2] = "Next page"
+        locations[9]["button functions"][2] = () => checkForDragons(page + 1)
+    } else {
+        button3.style.display = "none"
+    }
+    locations[9]["button text"][3] = "Return home"
+    locations[9]["button functions"][3] = goHome
+    updateLocation(locations[9])
+}
+
+
+
+
 
 })
