@@ -10,7 +10,9 @@ let myDragon = dragons[0];
 let gold = 20;
 let monster;
 let ki = 0;
-let mhPrice = (myDragon.maxHP - myDragon.health) * 10
+let mhPrice = (myDragon.maxHP - myDragon.health) * 10;
+let xpGained = 0;
+let goldGained = 0;
 
 const button1 = document.querySelector("#button1");
 const button2 = document.querySelector("#button2");
@@ -65,7 +67,7 @@ const locations = [
     {name: "victory",
     "button text": ["Countinue fighting", "Challenge Dagur", "Return home"],
     "button functions": [goDungeon, fightDagur, goHome],
-    info: "You slay your enemy and earn some loot some and gain some xp, what is your next move..."
+    info: `You slay the enemy and find ${goldGained} gold and gain ${xpGained} experience\n`
     },
     {name: "defeat",
     "button text": ["Restart", "You won't", "Pussy"],
@@ -94,7 +96,6 @@ function updateStats() {
     xpText.innerText = myDragon.xp
     levelText.innerText = myDragon.level
     healthText.innerText = myDragon.health + "/" + myDragon.maxHP
-    checkForLevelup()
 }
 
 function updateLocation(locations) {
@@ -214,8 +215,8 @@ function getRandom(min, max) {
 };
 
 function attack() {
-    info.innerText = "The " + monster.name + " attacks.\n"
-    info.innerText += myDragon.name + " strikes back."
+    info.innerText = `${monster.name} attacks for ${monster.power} damage
+    ${myDragon.name} deals ${myDragon.power} damage.`
     myDragon.health -= monster.power
     monster.health -= myDragon.power + ki
     healthText.innerText = myDragon.health + "/" + myDragon.maxHP
@@ -225,9 +226,14 @@ function attack() {
         if (monster.id == 3) {
             updateLocation(locations[8])
         } else {
-            myDragon.xp += monster.maxHP * 5
-            gold += monster.level * 5
+            xpGained = monster.maxHP * 5
+            goldGained = monster.level * 5
+            myDragon.xp += xpGained
+            gold += goldGained
             updateLocation(locations[6])
+            info.innerText = `+${goldGained} Gold
+            +${xpGained} XP\n`
+            checkForLevelup()
             }
     }
     if (myDragon.health <= 0) {
@@ -254,23 +260,26 @@ function charge() {
 };
 
 function checkForLevelup() {
-    let nextLevelXP = experienceForLevel(myDragon.level + 1)
+    let nextLevelXP = xpCheck(myDragon.level + 1)
+    console.log(nextLevelXP)
     while (myDragon.xp >= nextLevelXP) {
         myDragon.level++
         myDragon.power += (myDragon.id + 1) * 5
         myDragon.maxHP += 15
         updateStats()
-        info.innerText = "Congratulations your dragon has leveled up."
-        nextLevelXP = experienceForLevel(myDragon.level + 1)
+        info.innerText += `${myDragon.name} has levelled up.`
+        nextLevelXP = xpCheck(myDragon.level + 1)
     }
 };
 
-function experienceForLevel(level) {
+function xpCheck(level) {
     let totalXP = 0;
     for (let i = 1; i < level; i++) {
         totalXP += Math.floor(i + 300 * Math.pow(2, (i - 1) / 7));
     }
-    return Math.floor(totalXP / 4);
+   let requiredXP = Math.floor(totalXP / 4);
+   let xpLeft = requiredXP - myDragon.xp
+   return requiredXP
 }
 
 function equipDragon(selected) {
@@ -289,7 +298,7 @@ function statCheck() {
     Power: ${myDragon.power}
     Level: ${myDragon.level}
     Health: ${myDragon.health}/${myDragon.maxHP}
-    XP till level up: ${experienceForLevel(myDragon.level + 1)}`
+    Next level up is ${xpCheck(myDragon.level + 1)}xp away`
 }
 
 function checkForDragons(page) {
