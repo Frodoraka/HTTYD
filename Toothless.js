@@ -1,18 +1,22 @@
 document.addEventListener("DOMContentLoaded", function() {
 const dragons = [
-    {name: "Terrible Terror", xp: 0, level: 1, power: 5, maxHP: 20, health: 20, id: 0, owned: true},
-    {name: "Gronckle", xp: 0, level: 1, power: 10, maxHP: 100, health: 100, value: 200, id: 1, owned: false},
-    {name: "Natterhead", xp: 0, level: 1, power: 35, maxHP: 75, health: 75, value: 500, id: 2, owned: false},
-    {name: "Night Fury", xp: 0, level: 1, power: 75, maxHP: 100, health: 100, value: 1000, id: 3, owned: false}, 
+    {name: "Terrible Terror", xp: 0, level: 1, range: 0.5, maxHit: 5, maxHP: 20, health: 20, id: 0, owned: true},
+    {name: "Gronckle", xp: 0, level: 1, range: 0.5, maxHit: 10, maxHP: 100, health: 100, value: 200, id: 1, owned: false},
+    {name: "Natterhead", xp: 0, level: 1, range: 0.65, maxHit: 35, maxHP: 75, health: 75, value: 500, id: 2, owned: false},
+    {name: "Night Fury", xp: 0, level: 1, range: 0.825, maxHit: 75, maxHP: 100, health: 100, value: 1000, id: 3, owned: false},
+    {name: "Skrill", xp: 0, level: 1, range: 0.35, maxHit: 110, maxHP: 180, health: 180, id: 4, owned: false},
+    {name: "Dev Dragon", xp: 0, level: 1, range: 0.825, maxHit: 500, maxHP: 1000000, health: 1000000, id: 5, owned: false},
 ];
 
 let myDragon = dragons[0];
 let gold = 20;
+let mhPrice;
 let monster;
 let ki = 0;
-let mhPrice = (myDragon.maxHP - myDragon.health) * 10;
-let xpGained = 0;
-let goldGained = 0;
+let xpGained;
+let goldGained;
+let myHit;
+let monsterHit;
 
 const button1 = document.querySelector("#button1");
 const button2 = document.querySelector("#button2");
@@ -28,10 +32,10 @@ const monsterStats = document.querySelector("#monsterStats");
 const monsterName = document.querySelector("#monsterName");
 const monsterHealth = document.querySelector("#monsterHealth");
 const monsters = [
-    {name: "Berserker Henchman", level: 5, power: 1, maxHP: 15, health: 15, id: 0},
-    {name: "Berserker Guard", level: 10, power: 10, maxHP: 50, health: 50, id: 1},
-    {name: "Dagurs Personal Guard", level: 20, power: 50, maxHP: 250, health: 250, id: 2},
-    {name: "Dagur the Deranged", level: 50, power: 123, maxHP: 777, health: 777, id: 3},
+    {name: "Berserker Henchman", level: 2, range: 0.5, maxHit: 3, maxHP: 15, health: 15, id: 0},
+    {name: "Berserker Guard", level: 10, range: 0.65, maxHit: 18, maxHP: 50, health: 50, id: 1},
+    {name: "Dagurs Personal Guard", level: 20, range: 0.4, maxHit: 110, maxHP: 250, health: 250, id: 2},
+    {name: "Dagur the Deranged", level: 50, range: 0.735, maxHit: 215, maxHP: 777, health: 777, id: 3},
 ];
 const locations = [
     {name: "home",
@@ -40,7 +44,7 @@ const locations = [
     info: "You return to the town centre, where would you like to travel next."
     },
     {name: "shop",
-    "button text": ["New dragon", "+10 Health (10 gold)", "Full heal (" + mhPrice + " gold)", "Home"],
+    "button text": ["New dragon", "+10 Health (5 gold)", "Full heal (" + mhPrice + " gold)", "Home"],
     "button functions": [dragonShop, () => healDragon(1), () => healDragon(2), goHome],
     info: "You have entered the shop, what is it you wish to purchase",
     },
@@ -67,7 +71,7 @@ const locations = [
     {name: "victory",
     "button text": ["Countinue fighting", "Challenge Dagur", "Return home"],
     "button functions": [goDungeon, fightDagur, goHome],
-    info: `You slay the enemy and find ${goldGained} gold and gain ${xpGained} experience\n`
+    info: ``
     },
     {name: "defeat",
     "button text": ["Restart", "You won't", "Pussy"],
@@ -89,7 +93,7 @@ const locations = [
 button1.onclick = goBerserk;
 button2.onclick = goShop;
 button3.onclick = goInventory;
-
+updateStats()
 function updateStats() {
     nameText.innerText = myDragon.name
     goldText.innerText = gold
@@ -124,11 +128,11 @@ function goHome() {
 };
 
 function goShop() {
-    mhPrice = (myDragon.maxHP - myDragon.health)
+    mhPrice = Math.ceil((myDragon.maxHP - myDragon.health) * 0.5)
     if (mhPrice == 0) {
         locations[1]["button text"][2] = "Full heal (0 Gold)"
     } else {
-        locations[1]["button text"][2] = "Full heal (" + mhPrice + " gold)"
+        locations[1]["button text"][2] = `Full heal (${mhPrice} Gold)`
     }
     updateLocation(locations[1])
     button4.style.display = "inline-block"
@@ -174,7 +178,7 @@ function healDragon(size) {
     if (myDragon.health < myDragon.maxHP) {
         if (size == 1 && gold >= 10) {
             myDragon.health += 10
-            gold -= 10
+            gold -= 5
             goldText.innerText = gold
             if (myDragon.health >= myDragon.maxHP) {
             myDragon.health = myDragon.maxHP
@@ -196,10 +200,10 @@ function healDragon(size) {
 
 function goDungeon() {
     updateLocation(locations[5])
-    if (myDragon.power >= monsters[2].power) {
-        monster = monsters[getRandom(0, 2)]
-    } else if (myDragon.power >= monsters[1].power) {
-        monster = monsters[getRandom(0, 1)]
+    if (myDragon.maxHit >= monsters[2].maxHit) {
+        monster = monsters[getMonster(0, 2)]
+    } else if (myDragon.maxHit >= monsters[1].maxHit) {
+        monster = monsters[getMonster(0, 1)]
     } else {
         monster = monsters[0]
     } 
@@ -210,15 +214,23 @@ function goDungeon() {
     info.innerText = "You encounter a random enemy as you roam the Berserker island dungeons, prepare to battle!"
 };
 
-function getRandom(min, max) {
+function getMonster(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min
 };
 
+function getHitValue(power, range) {
+    let minHit = Math.floor(power * range)
+    return Math.floor(Math.random() * (power - minHit + 1)) + minHit
+
+}
+
 function attack() {
-    info.innerText = `${monster.name} attacks for ${monster.power} damage
-    ${myDragon.name} deals ${myDragon.power} damage.`
-    myDragon.health -= monster.power
-    monster.health -= myDragon.power + ki
+    monsterHit = getHitValue(monster.maxHit, monster.range)
+    myHit = getHitValue(myDragon.maxHit, myDragon.range)
+    info.innerText = `${monster.name} attacks for ${monsterHit} damage
+    ${myDragon.name} deals ${myHit} damage.`
+    myDragon.health -= monsterHit
+    monster.health -= myHit + ki
     healthText.innerText = myDragon.health + "/" + myDragon.maxHP
     monsterHealth.innerText = monster.health
     ki = 0
@@ -226,14 +238,14 @@ function attack() {
         if (monster.id == 3) {
             updateLocation(locations[8])
         } else {
-            xpGained = monster.maxHP * 5
+            xpGained = Math.floor(monster.maxHP * 3.5)
             goldGained = monster.level * 5
             myDragon.xp += xpGained
             gold += goldGained
             updateLocation(locations[6])
-            info.innerText = `+${goldGained} Gold
-            +${xpGained} XP\n`
             checkForLevelup()
+            info.innerText += `+${goldGained} Gold
+            +${xpGained} XP\n`
             }
     }
     if (myDragon.health <= 0) {
@@ -244,6 +256,7 @@ function attack() {
 function fightDagur() {
     updateLocation(locations[5])
     monster = monsters[3]
+    monster.health = monster.maxHP
     monsterName.innerText = monster.name
     monsterHealth.innerText = monster.health
     monsterStats.style.display = "block"
@@ -251,33 +264,36 @@ function fightDagur() {
 };
 
 function charge() {
-    info.innerText = "The " + monster.name + " attacks. \n"
+    info.innerText = `${monster.name} attacks for ${monster.maxHit} damage`
     info.innerText += "You charge your next attack to be even more lethal."
-    myDragon.health -= monster.power
+    myDragon.health -= monster.maxHit
     updateStats()
     monsterHealth.innerText = monster.health
-    ki = Math.floor(myDragon.power * getRandom(0, 2))
+    let attackMultiplier = Math.floor(Math.random() * (max - min + 1)) + min
+    ki = Math.floor(myDragon.maxHit * attackMultiplier)
 };
 
 function checkForLevelup() {
     let nextLevelXP = xpCheck(myDragon.level + 1)
-    console.log(nextLevelXP)
+    let levels = 0
     while (myDragon.xp >= nextLevelXP) {
         myDragon.level++
-        myDragon.power += (myDragon.id + 1) * 5
+        myDragon.maxHit += (myDragon.id + 1) * 5
         myDragon.maxHP += 15
         updateStats()
-        info.innerText += `${myDragon.name} has levelled up.`
+        levels++
         nextLevelXP = xpCheck(myDragon.level + 1)
+        info.innerText = `${myDragon.name} has levelled up. +${levels}\n`;
     }
+    
 };
 
 function xpCheck(level) {
     let totalXP = 0;
     for (let i = 1; i < level; i++) {
-        totalXP += Math.floor(i + 300 * Math.pow(2, (i - 1) / 7));
+        totalXP += Math.floor(i + 100 * Math.pow(2, (i - 1) / 7));
     }
-   let requiredXP = Math.floor(totalXP / 4);
+   let requiredXP = Math.floor(totalXP / 1.5);
    let xpLeft = requiredXP - myDragon.xp
    return requiredXP
 }
@@ -295,10 +311,10 @@ function equipDragon(selected) {
 function statCheck() {
     info.innerText = `Dragon Stats:
     Name: ${myDragon.name}
-    Power: ${myDragon.power}
+    Power: ${myDragon.maxHit}
     Level: ${myDragon.level}
     Health: ${myDragon.health}/${myDragon.maxHP}
-    Next level up is ${xpCheck(myDragon.level + 1)}xp away`
+    Next level up at ${xpCheck(myDragon.level + 1)}xp`
 }
 
 function checkForDragons(page) {
